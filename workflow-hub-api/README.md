@@ -77,3 +77,35 @@ php artisan test
 ```
 
 The workflow feature tests fake Supabase Auth responses, so they do not need real Supabase credentials.
+
+## Production Deployment
+
+This API can be deployed on Render using the included `Dockerfile`.
+
+Recommended Render settings:
+
+- Root directory: `workflow-hub-api`
+- Environment: Docker
+- Dockerfile path: `Dockerfile`
+
+Set production values in the Render dashboard, not in Git:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://your-render-api-domain.onrender.com
+DB_CONNECTION=pgsql
+DB_URL=postgres://<database-user>:<database-password>@<database-host>:5432/postgres
+DB_SSLMODE=require
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+CORS_ALLOWED_ORIGINS=https://your-cloudflare-pages-domain.pages.dev
+```
+
+Run migrations after deployment:
+
+```bash
+php artisan migrate --force
+```
+
+See the root `docs/deployment.md` guide for the full Cloudflare Pages, Render, and Supabase checklist.

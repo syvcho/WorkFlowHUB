@@ -1,0 +1,14 @@
+.env
+.env.*
+!.env.example
+.git
+.github
+.phpunit.result.cache
+.vscode
+node_modules
+public/build
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+vendor

@@ -150,6 +150,16 @@ cd workflow-hub-api
 php artisan test
 ```
 
+## Deployment
+
+Recommended free portfolio deployment:
+
+- Frontend: Cloudflare Pages
+- Backend: Render web service
+- Auth and database: Supabase Free
+
+See [docs/deployment.md](docs/deployment.md) for the production environment checklist, deployment steps, and smoke tests.
+
 ## Security Notes
 
 - `.env`, `.env.*`, and local Laravel `.env` files are ignored.
@@ -157,6 +167,7 @@ php artisan test
 - The Vue app only uses Supabase publishable keys.
 - Laravel verifies Supabase user tokens before protected profile/workflow actions.
 - Workflow ownership is enforced by `supabase_user_id`.
+- Production secrets belong in Cloudflare, Render, and Supabase dashboards, not in GitHub.
 
 ## Learning Goals Demonstrated
 
