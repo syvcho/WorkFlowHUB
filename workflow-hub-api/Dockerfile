@@ -18,7 +18,6 @@ RUN apt-get update \
         zip \
     && a2dismod -f mpm_event \
     && a2dismod -f mpm_worker \
-    && a2dismod -f mpm_threaded \
     && a2enmod mpm_prefork \
     && a2enmod rewrite \
     && sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
