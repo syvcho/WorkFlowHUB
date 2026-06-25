@@ -16,8 +16,9 @@ RUN apt-get update \
         intl \
         pdo_pgsql \
         zip \
-    && a2dismod mpm_event mpm_worker \
-    && a2enmod mpm_prefork \
+    && find /etc/apache2/mods-enabled/ \( -name 'mpm_*.conf' -o -name 'mpm_*.load' \) -delete \
+    && ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf \
+    && ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
     && a2enmod rewrite \
     && sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
     && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
@@ -27,6 +28,7 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY . .
 
 RUN composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader \
-    && chown -R www-data:www-data storage bootstrap/cache
+    && chown -R www-data:www-data storage bootstrap/cache \
+    && chmod +x /var/www/html/docker-entrypoint.sh
 
-CMD ["apache2-foreground"]
+CMD ["/var/www/html/docker-entrypoint.sh"]
