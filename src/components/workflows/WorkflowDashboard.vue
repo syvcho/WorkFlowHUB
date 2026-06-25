@@ -117,10 +117,14 @@ const emit = defineEmits([
 ])
 
 const activeSection = ref('dashboard-overview')
+const isMobileRailOpen = ref(false)
 const progressTotal = computed(() => props.plannedCount + props.inProgressCount + props.completedCount)
 const plannedPercent = computed(() => progressPercent(props.plannedCount))
 const inProgressPercent = computed(() => progressPercent(props.inProgressCount))
 const completedPercent = computed(() => progressPercent(props.completedCount))
+const activeSectionLabel = computed(() => {
+  return sidebarItems.find((item) => item.id === activeSection.value)?.label || 'Dashboard'
+})
 const sidebarItems = [
   { id: 'dashboard-overview', label: 'Dashboard', icon: 'pi pi-home' },
   { id: 'workflow-editor', label: 'Create workflow', icon: 'pi pi-plus-circle' },
@@ -137,10 +141,16 @@ function progressPercent(count) {
 
 function goToSection(sectionId) {
   activeSection.value = sectionId
+  isMobileRailOpen.value = false
+
   document.getElementById(sectionId)?.scrollIntoView({
     behavior: 'smooth',
     block: 'start',
   })
+}
+
+function toggleMobileRail() {
+  isMobileRailOpen.value = !isMobileRailOpen.value
 }
 
 function updateActiveSectionFromScroll() {
@@ -197,7 +207,7 @@ onUnmounted(() => {
 
 <template>
   <main class="dashboard-shell">
-    <aside class="workspace-rail">
+    <aside class="workspace-rail" :class="{ 'rail-open': isMobileRailOpen }">
       <section class="rail-section rail-brand-section">
         <div class="rail-brand">
           <Avatar icon="pi pi-bolt" shape="circle" size="large" class="brand-avatar" />
@@ -206,105 +216,120 @@ onUnmounted(() => {
             <span>Workflow workspace</span>
           </div>
         </div>
-        <Tag
-          :severity="canUseBackend ? 'success' : 'warn'"
-          :value="canUseBackend ? 'Connected' : 'Setup needed'"
-          rounded
-          class="rail-status"
-        />
-      </section>
-
-      <section class="rail-section">
-        <p class="rail-section-title">Workspace</p>
-        <nav class="rail-nav" aria-label="Workspace sections">
-          <a
-            v-for="item in sidebarItems"
-            :key="item.id"
-            :href="`#${item.id}`"
-            :class="{ active: activeSection === item.id }"
-            @click.prevent="goToSection(item.id)"
-          >
-            <i :class="item.icon"></i>
-            {{ item.label }}
-          </a>
-        </nav>
-      </section>
-
-      <section class="rail-section">
-        <p class="rail-section-title">Progress</p>
-        <div class="rail-progress-summary" aria-label="Workflow status counts">
-          <div class="rail-progress-bar" :class="{ empty: progressTotal === 0 }" aria-hidden="true">
-            <span
-              v-if="progressTotal && plannedCount > 0"
-              class="rail-progress-segment planned"
-              :style="{ width: `${plannedPercent}%` }"
-            ></span>
-            <span
-              v-if="progressTotal && inProgressCount > 0"
-              class="rail-progress-segment progress"
-              :style="{ width: `${inProgressPercent}%` }"
-            ></span>
-            <span
-              v-if="progressTotal && completedCount > 0"
-              class="rail-progress-segment complete"
-              :style="{ width: `${completedPercent}%` }"
-            ></span>
-          </div>
-
-          <div class="rail-progress-labels">
-            <span>
-              <i class="planned"></i>
-              Planned
-              <strong>{{ plannedCount }}</strong>
-            </span>
-            <span>
-              <i class="progress"></i>
-              In progress
-              <strong>{{ inProgressCount }}</strong>
-            </span>
-            <span>
-              <i class="complete"></i>
-              Completed
-              <strong>{{ completedCount }}</strong>
-            </span>
-          </div>
+        <div class="rail-mobile-controls">
+          <Tag
+            :severity="canUseBackend ? 'success' : 'warn'"
+            :value="canUseBackend ? 'Connected' : 'Setup needed'"
+            rounded
+            class="rail-status"
+          />
+          <Button
+            type="button"
+            class="rail-toggle"
+            severity="secondary"
+            outlined
+            :icon="isMobileRailOpen ? 'pi pi-chevron-up' : 'pi pi-bars'"
+            :label="activeSectionLabel"
+            :aria-expanded="isMobileRailOpen"
+            aria-controls="workspace-rail-content"
+            @click="toggleMobileRail"
+          />
         </div>
       </section>
 
-      <Card class="rail-account-card">
-        <template #content>
-          <div class="rail-account">
-            <Avatar icon="pi pi-user" shape="circle" />
-            <div>
-              <p class="rail-section-title">Signed in</p>
-              <strong>{{ userName }}</strong>
-              <span>{{ userEmail }}</span>
+      <div id="workspace-rail-content" class="rail-collapsible">
+        <section class="rail-section">
+          <p class="rail-section-title">Workspace</p>
+          <nav class="rail-nav" aria-label="Workspace sections">
+            <a
+              v-for="item in sidebarItems"
+              :key="item.id"
+              :href="`#${item.id}`"
+              :class="{ active: activeSection === item.id }"
+              @click.prevent="goToSection(item.id)"
+            >
+              <i :class="item.icon"></i>
+              {{ item.label }}
+            </a>
+          </nav>
+        </section>
+
+        <section class="rail-section">
+          <p class="rail-section-title">Progress</p>
+          <div class="rail-progress-summary" aria-label="Workflow status counts">
+            <div class="rail-progress-bar" :class="{ empty: progressTotal === 0 }" aria-hidden="true">
+              <span
+                v-if="progressTotal && plannedCount > 0"
+                class="rail-progress-segment planned"
+                :style="{ width: `${plannedPercent}%` }"
+              ></span>
+              <span
+                v-if="progressTotal && inProgressCount > 0"
+                class="rail-progress-segment progress"
+                :style="{ width: `${inProgressPercent}%` }"
+              ></span>
+              <span
+                v-if="progressTotal && completedCount > 0"
+                class="rail-progress-segment complete"
+                :style="{ width: `${completedPercent}%` }"
+              ></span>
+            </div>
+
+            <div class="rail-progress-labels">
+              <span>
+                <i class="planned"></i>
+                Planned
+                <strong>{{ plannedCount }}</strong>
+              </span>
+              <span>
+                <i class="progress"></i>
+                In progress
+                <strong>{{ inProgressCount }}</strong>
+              </span>
+              <span>
+                <i class="complete"></i>
+                Completed
+                <strong>{{ completedCount }}</strong>
+              </span>
             </div>
           </div>
-          <div class="rail-account-actions">
-            <Button
-              type="button"
-              label="Edit"
-              icon="pi pi-pencil"
-              severity="secondary"
-              outlined
-              class="rail-edit-name"
-              :loading="profileLoading"
-              :disabled="profileLoading"
-              @click="$emit('open-profile')"
-            />
-            <Button
-              type="button"
-              label="Sign out"
-              icon="pi pi-sign-out"
-              severity="danger"
-              outlined
-              class="rail-logout"
-              @click="$emit('sign-out')"
-            />
-          </div>
-        </template>
-      </Card>
+        </section>
+
+        <Card class="rail-account-card">
+          <template #content>
+            <div class="rail-account">
+              <Avatar icon="pi pi-user" shape="circle" />
+              <div>
+                <p class="rail-section-title">Signed in</p>
+                <strong>{{ userName }}</strong>
+                <span>{{ userEmail }}</span>
+              </div>
+            </div>
+            <div class="rail-account-actions">
+              <Button
+                type="button"
+                label="Edit"
+                icon="pi pi-pencil"
+                severity="secondary"
+                outlined
+                class="rail-edit-name"
+                :loading="profileLoading"
+                :disabled="profileLoading"
+                @click="$emit('open-profile')"
+              />
+              <Button
+                type="button"
+                label="Sign out"
+                icon="pi pi-sign-out"
+                severity="danger"
+                outlined
+                class="rail-logout"
+                @click="$emit('sign-out')"
+              />
+            </div>
+          </template>
+        </Card>
+      </div>
     </aside>
 
     <section class="dashboard-main">

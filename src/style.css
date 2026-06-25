@@ -313,6 +313,24 @@ textarea {
   gap: 12px;
 }
 
+.rail-mobile-controls {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+}
+
+.rail-toggle {
+  display: none;
+}
+
+.rail-collapsible {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
 .rail-brand strong,
 .rail-brand span {
   display: block;
@@ -851,27 +869,87 @@ textarea {
 }
 
 @media (max-width: 1120px) {
+  html {
+    scroll-padding-top: 110px;
+  }
+
   .dashboard-shell {
     display: grid;
     grid-template-columns: 1fr;
+    gap: 14px;
   }
 
   .workspace-rail {
-    position: static;
+    position: sticky;
+    z-index: 80;
+    top: 10px;
     width: auto;
     height: auto;
     min-height: auto;
-    overflow: visible;
+    max-height: calc(100vh - 20px);
+    overflow: hidden;
     overscroll-behavior: auto;
+    border-radius: 18px;
+    padding: 12px;
   }
 
   .dashboard-main {
     margin-left: 0;
+    scroll-margin-top: 116px;
   }
 
   .dashboard-main::before,
   .dashboard-main::after {
     display: none;
+  }
+
+  .rail-brand-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .rail-brand {
+    min-width: 0;
+  }
+
+  .rail-brand .brand-avatar {
+    width: 38px;
+    height: 38px;
+    margin-bottom: 0;
+  }
+
+  .rail-brand span {
+    font-size: 0.78rem;
+  }
+
+  .rail-mobile-controls {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .rail-toggle {
+    display: inline-flex;
+    max-width: 172px;
+  }
+
+  .rail-toggle .p-button-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .rail-collapsible {
+    display: none;
+    overflow: auto;
+    padding-top: 12px;
+  }
+
+  .workspace-rail.rail-open .rail-collapsible {
+    display: flex;
   }
 
   .rail-nav {
@@ -884,6 +962,12 @@ textarea {
 
   .identity-grid {
     grid-template-columns: 1fr;
+  }
+
+  #dashboard-overview,
+  #workflow-editor,
+  #workflow-items {
+    scroll-margin-top: 120px;
   }
 }
 
@@ -994,6 +1078,16 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .rail-mobile-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .rail-toggle {
+    max-width: 100%;
+    width: 100%;
+  }
+
   .rail-progress-labels {
     gap: 9px;
   }
@@ -1031,8 +1125,18 @@ textarea {
   .workflow-card .p-card-content {
     padding: 18px;
   }
-
   .auth-tabs {
-    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .auth-tabs .p-button {
+    min-width: 0;
+    padding-inline: 10px;
+  }
+
+  .auth-tabs .p-button-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
