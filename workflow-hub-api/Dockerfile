@@ -16,14 +16,7 @@ RUN apt-get update \
         intl \
         pdo_pgsql \
         zip \
-    && rm -f /etc/apache2/mods-enabled/mpm_event.conf \
-             /etc/apache2/mods-enabled/mpm_event.load \
-             /etc/apache2/mods-enabled/mpm_worker.conf \
-             /etc/apache2/mods-enabled/mpm_worker.load \
-             /etc/apache2/mods-enabled/mpm_threaded.conf \
-             /etc/apache2/mods-enabled/mpm_threaded.load \
-    && sed -i 's/^LoadModule mpm_event/# LoadModule mpm_event/' /etc/apache2/mods-available/mpm_event.load \
-    && sed -i 's/^LoadModule mpm_worker/# LoadModule mpm_worker/' /etc/apache2/mods-available/mpm_worker.load \
+    && find /etc/apache2/mods-enabled/ \( -name 'mpm_*.conf' -o -name 'mpm_*.load' \) -delete \
     && ln -sf /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf \
     && ln -sf /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
     && a2enmod rewrite \
